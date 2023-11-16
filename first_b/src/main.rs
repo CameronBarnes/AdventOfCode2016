@@ -42,17 +42,21 @@ fn main() {
                     Direction::West => Direction::South,
             };
         }
-        match dir {
-            Direction::North => x += dist,
-            Direction::East => y += dist,
-            Direction::South => x -= dist,
-            Direction::West => y -= dist,
-        }
-        if set.contains(&(x,y)) {
-            result = (x,y);
-            break;
-        } else {
-            set.insert((x,y));
+        let change = match dir {
+            Direction::North => (1, 0),
+            Direction::East => (0, 1),
+            Direction::South => (-1, 0),
+            Direction::West => (0, -1),
+        };
+        for _ in 0..dist {
+            x += change.0;
+            y += change.1;
+            if result.0 == 0 && result.1 == 0 && set.contains(&(x,y)) {
+                result = (x,y);
+                break;
+            } else {
+                set.insert((x,y));
+            }
         }
     }
 
