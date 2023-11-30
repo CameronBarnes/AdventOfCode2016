@@ -1,9 +1,14 @@
-fn limit_move(start: (i32, i32), buttons: Vec<Vec<char>>, act: (i32, i32)) -> (i32, i32) {
+fn limit_move(start: (i32, i32), buttons: &Vec<Vec<char>>) -> ((i32, i32), (i32, i32)) {
 
-    let x_limit = buttons.get(start.1 as usize).unwrap().len();
-    let y_limit = buttons.get(start.0 as usize).unwrap().len();
+    let x_limit = buttons.get(start.1 as usize).unwrap().len() as i32;
+    let y_limit = buttons.get(start.0 as usize).unwrap().len() as i32;
 
-    let max = (5 - x_limit, 5 - y_limit);    
+    let x_limit = (5 - x_limit) / 2;
+    let y_limit = (5 - y_limit) / 2;
+
+    // println!("Start: {:?}, x_limit: {}, y_limit: {}", start, x_limit, y_limit);
+
+    ((x_limit, 4 - x_limit), (y_limit, 4 - y_limit))
 
 }
 
@@ -24,11 +29,12 @@ fn solve_for_line(str: &str, mut out: String, mut start: (i32, i32)) -> (String,
             'R' => (1, 0),
             _ => panic!("Invalid input"),
         };
-        start.0 = i32::min(2, i32::max(0, start.0 + act.0));
-        start.1 = i32::min(2, i32::max(0, start.1 + act.1));
+        let limits = limit_move(start, &buttons);
+        start.0 = i32::min(limits.0.1, i32::max(limits.0.0, start.0 + act.0));
+        start.1 = i32::min(limits.1.1, i32::max(limits.1.0, start.1 + act.1));
     });
 
-    out.push_str(&buttons[start.0 as usize][start.1 as usize].to_string());
+    out.push_str(&buttons[start.1 as usize][start.0 as usize].to_string());
     (out, start)
 
 }
@@ -36,7 +42,7 @@ fn solve_for_line(str: &str, mut out: String, mut start: (i32, i32)) -> (String,
 fn main() {
     let input = include_str!("./input.txt");
     let (result, _) = input.lines()
-        .fold((String::new(), (1, 1)), |(out, start), str| {
+        .fold((String::new(), (2, 2)), |(out, start), str| {
         solve_for_line(str, out, start)
     });
     println!("Answer is: {result}");
